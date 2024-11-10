@@ -532,6 +532,8 @@ class PlaceholderTextField extends JTextField implements FocusListener {
         addImageButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                String userPassword;
+
                 // Open file chooser to select an image
                 JFileChooser fileChooser = new JFileChooser();
                 fileChooser.setDialogTitle("Select an Image");
@@ -542,6 +544,13 @@ class PlaceholderTextField extends JTextField implements FocusListener {
                     File selectedFile = fileChooser.getSelectedFile();
 
                     try {
+                        // THIS IS FOR SEEING IF THE IMAGE MATCHES WITH THE PASSWORD
+                        BufferedImage buffImg = ImageIO.read(selectedFile);
+                        buffImg = PasswordGenerator.resizeImage(buffImg, 512, 512);
+                        userPassword = PasswordGenerator.generatePasswordFromImage(buffImg);
+
+
+                        // THIS IS FOR DISPLAYING THE IMAGE IN THE BOX
                         // Load the image and scale it to fit the panel size
                         Image image = ImageIO.read(selectedFile);
                         Image scaledImage = image.getScaledInstance(300, 300, Image.SCALE_SMOOTH); // Scale the image
@@ -555,4 +564,13 @@ class PlaceholderTextField extends JTextField implements FocusListener {
             }
         });
     }
+}
+
+try {
+    BufferedImage buffImg = ImageIO.read(file);
+    buffImg = PasswordGenerator.resizeImage(buffImg, 512, 512);
+    generatedPassword = PasswordGenerator.generatePasswordFromImage(buffImg);
+    passwordField.setText(generatedPassword); // Placeholder for actual password logic
+} catch (IOException ex) {
+    JOptionPane.showMessageDialog(null, "Error loading image.");
 }
