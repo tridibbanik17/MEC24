@@ -28,6 +28,10 @@ public class MainGUI extends JFrame {
     private JButton addImageButton;
     private JLabel imageLabelTest;  // To display the uploaded image
     private JPanel testPanel;
+    private JButton submitButton = new JButton("Submit");
+    private JTextField passwordFieldTest;
+    private BufferedImage loadedTestImage;
+
 
 
     public MainGUI() {
@@ -101,7 +105,7 @@ public class MainGUI extends JFrame {
         addImageButton = new JButton("Upload Image");
 
         // Text field for password input (with placeholder)
-        JTextField passwordFieldTest = new JTextField("Enter your password here");
+        passwordFieldTest = new JTextField("Enter your password here");
         passwordFieldTest.setPreferredSize(new Dimension(250, 30)); // Set a fixed width
         passwordFieldTest.setMaximumSize(passwordFieldTest.getPreferredSize());
 
@@ -159,6 +163,11 @@ public class MainGUI extends JFrame {
         gbc2.gridx = 0;
         gbc2.gridy = 6;
         testPanel.add(passwordFieldTest, gbc2);
+
+        // Adds the submit button
+        gbc2.gridx = 0;
+        gbc2.gridy = 7; // Place it below the password field
+        testPanel.add(submitButton, gbc2);
 
 
         // Add tabs to the tabbed pane
@@ -532,11 +541,6 @@ class PlaceholderTextField extends JTextField implements FocusListener {
         addImageButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String userPassword;
-                String userEncryptedPassword;
-                String realEncryptedPassword = readFileToString("../../../resources/current_password.txt");
-                boolean correct = false;
-
                 // Open file chooser to select an image
                 JFileChooser fileChooser = new JFileChooser();
                 fileChooser.setDialogTitle("Select an Image");
@@ -547,20 +551,10 @@ class PlaceholderTextField extends JTextField implements FocusListener {
                     File selectedFile = fileChooser.getSelectedFile();
 
                     try {
-                        // THIS IS FOR SEEING IF THE IMAGE MATCHES WITH THE PASSWORD
-                        BufferedImage buffImg = ImageIO.read(selectedFile);
-                        buffImg = PasswordGenerator.resizeImage(buffImg, 512, 512);
-                        userPassword = PasswordGenerator.generatePasswordFromImage(buffImg);
-                        userEncryptedPassword = PasswordGenerator.encryptPassword512(userPassword);
-
-                        // Method call to compare passwords
-                        correct = comparePasswords(userEncryptedPassword, realEncryptedPassword);
-
-                        if (correct) {
-                            System.out.println("IT WORKS!!");
-                        } else {
-                            System.out.println("NOT THE SAME!");
-                        }
+                        // THIS IS FOR SETTING THE LOADEDIMAGE for submit button
+                        loadedTestImage = ImageIO.read(selectedFile);
+                        loadedTestImage = PasswordGenerator.resizeImage(loadedTestImage, 512, 512);
+                        
 
                         // THIS IS FOR DISPLAYING THE IMAGE IN THE BOX
                         // Load the image and scale it to fit the panel size
@@ -572,6 +566,38 @@ class PlaceholderTextField extends JTextField implements FocusListener {
                     } catch (IOException ex) {
                         ex.printStackTrace();
                     }
+                }
+            }
+        });
+
+        // When "Submit" on Test tab is clicked
+        submitButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String realEncryptedPassword = readFileToString("src/main/resources/current_password.txt");
+                String userPassword; 
+                String userEncryptedPassword;
+                String inputPasswordTEXT = passwordFieldTest.getText();
+                boolean isCorrect = false;
+
+                // If no image we test password
+                if (loadedTestImage == null) {
+                    isCorrect = comparePasswords(inputPasswordTEXT, realEncryptedPassword);
+                }
+                else if (loadedTestImage != null) {
+                    userPassword = PasswordGenerator.generatePasswordFromImage(loadedTestImage);
+                    userEncryptedPassword = PasswordGenerator.encryptPassword512(userPassword);
+                    isCorrect = comparePasswords(userEncryptedPassword, realEncryptedPassword);
+                }
+                else {
+                    isCorrect = false;
+                }
+                
+        
+                if (isCorrect) {
+                    JOptionPane.showMessageDialog(null, "SUCCESS!");
+                } else {
+                    JOptionPane.showMessageDialog(null, "WRONG PASSWORD!");
                 }
             }
         });
