@@ -35,6 +35,7 @@ public class MainGUI extends JFrame {
 
 
     public MainGUI() {
+        
         setTitle("Password Manager");
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

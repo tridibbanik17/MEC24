@@ -58,7 +58,7 @@ public class PasswordGenerator {
             String cleanedHash = hexString.toString().replaceFirst("^0+", "");
             return cleanedHash;
         } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
+            System.out.println("no such algorithm, error creating hash password");
             return null;
         }
     }
@@ -72,7 +72,7 @@ public class PasswordGenerator {
 
             return hashPassword;
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("Err! could not generate password from image");
             return null;
         }
     }
@@ -109,7 +109,7 @@ public class PasswordGenerator {
             String encryptedPassword = toHexString(shaBytes);
             return encryptedPassword;
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("Err: could not create 512 encrypted password");
             return null;
         }
     }
@@ -121,13 +121,13 @@ public class PasswordGenerator {
                 writer.write(encryptedPassword);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("Err: could not store 512 encrypted password");
         }
     }
 
     
 
-    public static void main(String[] args) {
+    /*public static void main(String[] args) {
         System.out.println("Testing");
         
         String imagePath = "src/main/resources/test-file.jpg"; // Path to your image file
@@ -155,5 +155,5 @@ public class PasswordGenerator {
         } catch (Exception e) {
             System.err.println("Error converting the image file: " + e.getMessage());
         }
-    }
+    }*/
 }
