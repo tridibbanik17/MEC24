@@ -1,4 +1,4 @@
-package HATS;
+package HATS.unused;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
