@@ -1,3 +1,5 @@
+package HATS;
+
 import java.awt.image.BufferedImage;
 
 public class PasswordContainer {
