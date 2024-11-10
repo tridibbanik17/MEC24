@@ -19,6 +19,22 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>1.7.32</version> <!-- Use the latest version -->
+      </dependency>
+      <dependency>
+        <groupId>some.other.library</groupId>
+        <artifactId>other-library</artifactId>
+        <version>1.0.0</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
         <groupId>org.junit</groupId>
         <artifactId>junit-bom</artifactId>
         <version>5.11.0</version>
