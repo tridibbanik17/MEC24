@@ -362,7 +362,9 @@ private void openAddToVaultDialog() {
             try {
                 PasswordManager passwordManager = new PasswordManager();
                 //VaultEntry newVaultEntry = new VaultEntry(displayName, img_serialize, username, password, "");
+                PasswordGenerator.storeCurrentPassword(password);
                 passwordManager.saveEntry(displayName, image, username, password, "", PasswordManager.generateKey());
+                
             } catch (Exception e2) {
                 System.out.println("Error in saving password details locally.");
             }
@@ -595,6 +597,9 @@ class PlaceholderTextField extends JTextField implements FocusListener {
                 else if (loadedTestImage != null) {
                     userPassword = PasswordGenerator.generatePasswordFromImage(loadedTestImage);
                     userEncryptedPassword = PasswordGenerator.encryptPassword512(userPassword);
+                    userEncryptedPassword += "\n";
+                    System.out.println("From Test: " + userEncryptedPassword);
+                    System.out.println("From file: " + realEncryptedPassword);
                     isCorrect = comparePasswords(userEncryptedPassword, realEncryptedPassword);
                 }
                 else {
