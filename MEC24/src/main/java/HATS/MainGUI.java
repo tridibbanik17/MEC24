@@ -50,9 +50,15 @@ public class MainGUI extends JFrame {
         JPanel passwordVaultPanel = new JPanel();
         passwordVaultPanel.add(new JLabel("This is the Password Vault."));
 
+
+        // Create the "Test" tab
+        JPanel testPanel = new JPanel();
+        testPanel.add(new JLabel("This is the test tab."));
+
         // Add tabs to the tabbed pane
         tabbedPane.addTab("Convert Image to Password", convertImagePanel);
         tabbedPane.addTab("Password Vault", passwordVaultPanel);
+        tabbedPane.addTab("Test", testPanel);
 
         // Add the tabbed pane to the frame
         add(tabbedPane);
@@ -112,6 +118,7 @@ public class MainGUI extends JFrame {
         PlaceholderTextField urlField = new PlaceholderTextField("e.g. mcmaster.ca");
         contentPanel.add(urlField);
 
+
         // Add button
         JButton addButton = new JButton("Add");
         addButton.addActionListener(new ActionListener() {
@@ -123,11 +130,12 @@ public class MainGUI extends JFrame {
         contentPanel.add(new JLabel()); // Empty label to align the button
         contentPanel.add(addButton);
 
+
         // Add the content panel to the dialog
         dialog.add(contentPanel);
 
         // Set dialog properties
-        dialog.setSize(300, 200);
+        dialog.setSize(350, 250);
         dialog.setLocationRelativeTo(this); // Center on the main window
         dialog.setVisible(true);
     }
