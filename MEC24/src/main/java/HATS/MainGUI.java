@@ -14,7 +14,7 @@ public class MainGUI extends JFrame {
     public MainGUI() {
         // Set up the JFrame
         setTitle("Password Manager");
-        setSize(600, 400);
+        setExtendedState(JFrame.MAXIMIZED_BOTH); // This maximizes the window
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         // Create the tabbed pane
