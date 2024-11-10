@@ -12,6 +12,8 @@ import java.io.File;
 import java.io.IOException;
 import javax.swing.border.EmptyBorder;
 import java.util.ArrayList;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class MainGUI extends JFrame {
     private JLabel imageLabel;
@@ -141,11 +143,15 @@ public class MainGUI extends JFrame {
         }
     }
 
+    private JPanel lastSelectedPanel = null; // Add this as a class field
+    private final Color SELECTED_COLOR = new Color(200, 200, 200); // Light grey
+    private final Color DEFAULT_COLOR = new Color(245, 245, 245); // Original color
+
     private void refreshVaultPanel() {
-        passwordVaultPanel.removeAll();  // Clear existing components
+        passwordVaultPanel.removeAll();
 
         if (vault.isEmpty()) {
-            // If no passwords, show the centered message
+            // No passwords message handling (keep existing code)
             GridBagConstraints gbc = new GridBagConstraints();
             gbc.gridx = 0;
             gbc.gridy = 0;
@@ -156,17 +162,41 @@ public class MainGUI extends JFrame {
             noPasswordsLabel.setForeground(new Color(128, 128, 128));
             passwordVaultPanel.add(noPasswordsLabel, gbc);
         } else {
-            // Reduce horizontal gap from 10 to 5 pixels
-            // You can also increase number of columns if desired (currently 3)
-            passwordVaultPanel.setLayout(new GridLayout(0, 3, 5, 10));  // 3 columns, 5px horizontal gap, 10px vertical gap
+            passwordVaultPanel.setLayout(new GridLayout(0, 3, 5, 10));
 
             for (PasswordContainer container : vault) {
                 JPanel entryPanel = new JPanel();
                 entryPanel.setLayout(new BoxLayout(entryPanel, BoxLayout.Y_AXIS));
-                // Reduce the border padding if needed
-                entryPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));  // Reduced from 10 to 5
+                entryPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+                entryPanel.setBackground(DEFAULT_COLOR);
 
-                // Scale the image
+                // Store the container reference in the panel's client properties
+                entryPanel.putClientProperty("container", container);
+
+                // Add mouse listeners for selection and double-click
+                entryPanel.addMouseListener(new MouseAdapter() {
+                    private long lastClickTime = 0;
+                    private static final long DOUBLE_CLICK_TIME = 500; // milliseconds
+
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        long currentTime = System.currentTimeMillis();
+                        if (currentTime - lastClickTime < DOUBLE_CLICK_TIME) {
+                            // Double click - show details popup
+                            showDetailsDialog(container);
+                        } else {
+                            // Single click - handle selection
+                            if (lastSelectedPanel != null) {
+                                lastSelectedPanel.setBackground(DEFAULT_COLOR);
+                            }
+                            entryPanel.setBackground(SELECTED_COLOR);
+                            lastSelectedPanel = entryPanel;
+                        }
+                        lastClickTime = currentTime;
+                    }
+                });
+
+                // Add image and label (keep existing code)
                 BufferedImage originalImage = container.getStoredImage();
                 if (originalImage != null) {
                     Image scaledImage = originalImage.getScaledInstance(100, 100, Image.SCALE_SMOOTH);
@@ -176,8 +206,7 @@ public class MainGUI extends JFrame {
                     entryPanel.add(imageLabel);
                 }
 
-                // Add display name
-                JLabel displayNameLabel = new JLabel(container.getdisplayName());
+                JLabel displayNameLabel = new JLabel(container.getDisplayName());
                 displayNameLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
                 displayNameLabel.setBorder(BorderFactory.createEmptyBorder(5, 0, 0, 0));
                 entryPanel.add(displayNameLabel);
@@ -233,7 +262,7 @@ private void openAddToVaultDialog() {
             }
 
             // Create and add the new password container
-            PasswordContainer newPassword = new PasswordContainer(displayName, password, url, "", image);
+            PasswordContainer newPassword = new PasswordContainer(displayName, username, password, url, "", image);
             vault.add(newPassword);
 
             // Close the dialog first
@@ -287,7 +316,102 @@ class PlaceholderTextField extends JTextField implements FocusListener {
         }
     }
 
-private void setupListeners() {
+    private void showDetailsDialog(PasswordContainer container) {
+        JDialog dialog = new JDialog(this, "Password Details", true);
+        dialog.setLayout(new BorderLayout());
+        
+        // Main content panel
+        JPanel contentPanel = new JPanel(new GridBagLayout());
+        contentPanel.setBorder(new EmptyBorder(15, 15, 15, 15));
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridwidth = 1;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(5, 5, 5, 5);
+
+        // Username field
+        gbc.gridy = 0;
+        gbc.gridx = 0;
+        contentPanel.add(new JLabel("Username:"), gbc);
+        gbc.gridx = 1;
+        JTextField usernameField = new JTextField(container.getUsername(), 20);
+        contentPanel.add(usernameField, gbc);
+
+        // Password field (non-editable)
+        gbc.gridy = 1;
+        gbc.gridx = 0;
+        contentPanel.add(new JLabel("Password:"), gbc);
+        gbc.gridx = 1;
+        JTextField passwordField = new JTextField(container.getPassword(), 20);
+        passwordField.setEditable(false);
+        passwordField.setBackground(Color.WHITE);
+        contentPanel.add(passwordField, gbc);
+
+        // Sites field
+        gbc.gridy = 2;
+        gbc.gridx = 0;
+        contentPanel.add(new JLabel("Sites:"), gbc);
+        gbc.gridx = 1;
+        JTextField sitesField = new JTextField(container.getSites(), 20);
+        contentPanel.add(sitesField, gbc);
+
+        // Notes field
+        gbc.gridy = 3;
+        gbc.gridx = 0;
+        contentPanel.add(new JLabel("Notes:"), gbc);
+        gbc.gridx = 1;
+        JTextArea notesArea = new JTextArea(container.getNote(), 4, 20);
+        notesArea.setLineWrap(true);
+        notesArea.setWrapStyleWord(true);
+        JScrollPane notesScroll = new JScrollPane(notesArea);
+        contentPanel.add(notesScroll, gbc);
+
+        // Button panel
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        
+        // Save button
+        JButton saveButton = new JButton("Save");
+        saveButton.addActionListener(e -> {
+            container.setUsername(usernameField.getText());
+            container.setSites(sitesField.getText());
+            container.setNote(notesArea.getText());
+            dialog.dispose();
+            refreshVaultPanel();
+        });
+
+        // Delete button
+        JButton deleteButton = new JButton("Delete");
+        deleteButton.setBackground(new Color(255, 99, 71)); // Tomato red
+        deleteButton.setForeground(Color.WHITE);
+        deleteButton.addActionListener(e -> {
+            int result = JOptionPane.showConfirmDialog(
+                dialog,
+                "Are you sure you want to delete this password?",
+                "Confirm Delete",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE
+            );
+            
+            if (result == JOptionPane.YES_OPTION) {
+                vault.remove(container);
+                dialog.dispose();
+                refreshVaultPanel();
+            }
+        });
+
+        buttonPanel.add(saveButton);
+        buttonPanel.add(deleteButton);
+
+        // Add panels to dialog
+        dialog.add(contentPanel, BorderLayout.CENTER);
+        dialog.add(buttonPanel, BorderLayout.SOUTH);
+
+        // Set dialog properties
+        dialog.pack();
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
+    }
+
+    private void setupListeners() {
         // Load image button listener
         loadImageButton.addActionListener(new ActionListener() {
             @Override
