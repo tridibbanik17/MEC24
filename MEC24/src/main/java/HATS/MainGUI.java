@@ -1,5 +1,6 @@
 package HATS;
 
+import javax.crypto.SecretKey;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
@@ -15,6 +16,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.*;
 import java.io.*;
+import java.util.List;
 
 public class MainGUI extends JFrame {
     private JLabel imageLabel;
@@ -22,7 +24,6 @@ public class MainGUI extends JFrame {
     private JButton loadImageButton;
     private JTextField passwordField;
     private JButton addToVaultButton;
-    private ArrayList<PasswordContainer> vault = new ArrayList<>();
     private JTabbedPane tabbedPane;
     private JPanel passwordVaultPanel;  // Make this a class field
     private JButton addImageButton;
@@ -33,10 +34,33 @@ public class MainGUI extends JFrame {
     private BufferedImage loadedTestImage;
     private JPanel convertImagePanel;
 
+    private ArrayList<PasswordContainer> vault = new ArrayList<>();
 
+    private void loadVaultData(SecretKey key) {
+        System.out.println("loading vault data");
+        try {
+            PasswordManager manager = new PasswordManager();
+            List<VaultEntry> entries = manager.loadEntries(key);
+            for (VaultEntry entry : entries) {
+                // Convert VaultEntry to PasswordContainer
+                BufferedImage image = manager.bytesToImage(entry.getStoredImage());
+                PasswordContainer container = new PasswordContainer(
+                    entry.getApplication(),
+                    entry.getDisplayName(), // Assuming username is empty or set elsewhere
+                    entry.getEncryptedPassword(),
+                    "",
+                    entry.getNote(),
+                    image
+                );
+                vault.add(container);
+            }
+        } catch (Exception e) {
+            System.out.println("ERR! Failed to load data from vault file.");
+            e.printStackTrace();
+        }
+    }
 
     public MainGUI() {
-        
         setTitle("Sherlock Password Manager");
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -610,8 +634,8 @@ class PlaceholderTextField extends JTextField implements FocusListener {
                     userPassword = PasswordGenerator.generatePasswordFromImage(loadedTestImage);
                     userEncryptedPassword = PasswordGenerator.encryptPassword512(userPassword);
                     userEncryptedPassword += "\n";
-                    // System.out.println("From Test: " + userEncryptedPassword);
-                    // System.out.println("From file: " + realEncryptedPassword);
+                    System.out.println("From Test: " + userEncryptedPassword);
+                    System.out.println("From file: " + realEncryptedPassword);
                     isCorrect = comparePasswords(userEncryptedPassword, realEncryptedPassword);
                 }
                 else {
