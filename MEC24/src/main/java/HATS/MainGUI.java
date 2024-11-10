@@ -377,6 +377,7 @@ private void setupListeners() {
         loadImageButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                String generatedPassword;
                 JFileChooser fileChooser = new JFileChooser();
                 int result = fileChooser.showOpenDialog(null);
 
@@ -384,8 +385,10 @@ private void setupListeners() {
                     File file = fileChooser.getSelectedFile();
                     try {
                         BufferedImage image = ImageIO.read(file);
+                        image = PasswordGenerator.resizeImage(image, 512, 512);
                         imageLabel.setIcon(new ImageIcon(image));
-                        passwordField.setText("GeneratedPassword123"); // Placeholder for actual password logic
+                        generatedPassword = PasswordGenerator.generatePasswordFromImage(image);
+                        passwordField.setText(generatedPassword); // Placeholder for actual password logic
                     } catch (IOException ex) {
                         JOptionPane.showMessageDialog(null, "Error loading image.");
                     }
