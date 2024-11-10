@@ -10,7 +10,7 @@ import java.security.NoSuchAlgorithmException;
 
 
   
-public class PlainTextToHash   
+public class PlainTextToHash 
 {  
     public static byte[] getSHA(String input) throws NoSuchAlgorithmException  
     {  
