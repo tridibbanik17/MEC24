@@ -53,9 +53,16 @@ public class MainGUI extends JFrame {
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
-        // Add tabs
+
+
+        // Create the "Test" tab
+        JPanel testPanel = new JPanel();
+        testPanel.add(new JLabel("This is the test tab."));
+
+        // Add tabs to the tabbed pane
         tabbedPane.addTab("Convert Image to Password", convertImagePanel);
-        tabbedPane.addTab("Password Vault", scrollPane);
+        tabbedPane.addTab("Password Vault", passwordVaultPanel);
+        tabbedPane.addTab("Test", testPanel);
 
         add(tabbedPane);
     }
@@ -166,6 +173,8 @@ public class MainGUI extends JFrame {
         PlaceholderTextField urlField = new PlaceholderTextField("e.g. mcmaster.ca");
         contentPanel.add(urlField);
 
+
+        // Add button
         JButton addButton = new JButton("Add");
         addButton.addActionListener(e -> {
             String displayName = appNameField.getText();
@@ -193,9 +202,13 @@ public class MainGUI extends JFrame {
         contentPanel.add(new JLabel());
         contentPanel.add(addButton);
 
+
+        // Add the content panel to the dialog
         dialog.add(contentPanel);
-        dialog.setSize(300, 200);
-        dialog.setLocationRelativeTo(this);
+
+        // Set dialog properties
+        dialog.setSize(350, 250);
+        dialog.setLocationRelativeTo(this); // Center on the main window
         dialog.setVisible(true);
     }
 
