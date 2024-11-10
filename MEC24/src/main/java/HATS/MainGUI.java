@@ -15,12 +15,13 @@ import java.util.ArrayList;
 
 public class MainGUI extends JFrame {
     private JLabel imageLabel;
+    private JLabel noPasswordsLabel;
     private JButton loadImageButton;
     private JTextField passwordField;
     private JButton addToVaultButton;
     private ArrayList<PasswordContainer> vault = new ArrayList<>();
     private JTabbedPane tabbedPane;
-    private JPanel passwordVaultPanel;  // Make this a class field
+    private JPanel passwordVaultPanel;
 
     public MainGUI() {
         setTitle("Password Manager");
@@ -46,10 +47,28 @@ public class MainGUI extends JFrame {
         convertImagePanel.add(southPanel, BorderLayout.SOUTH);
 
         // Initialize the Password Vault panel
-        passwordVaultPanel = new JPanel();
-        passwordVaultPanel.add(new JLabel("No Passwords Saved"));
-        passwordVaultPanel.setLayout(new WrapLayout(FlowLayout.LEFT, 20, 20));  // Use WrapLayout instead of GridLayout
+        passwordVaultPanel = new JPanel(new GridBagLayout());  // For initial "No Passwords" message
+
+        // Create the scroll pane for the password vault
         JScrollPane scrollPane = new JScrollPane(passwordVaultPanel);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+
+        // Create and configure the "No Passwords" label
+        JLabel noPasswordsLabel = new JLabel("No Passwords Saved", SwingConstants.CENTER);
+        noPasswordsLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        noPasswordsLabel.setForeground(new Color(128, 128, 128));
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.weightx = 1.0;
+        gbc.weighty = 1.0;
+        passwordVaultPanel.add(noPasswordsLabel, gbc);
+
+        //--------------------------
+        passwordVaultPanel.setLayout(new WrapLayout(FlowLayout.LEFT, 20, 20));  // Use WrapLayout instead of GridLayout
+        
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
@@ -125,29 +144,46 @@ public class MainGUI extends JFrame {
     private void refreshVaultPanel() {
         passwordVaultPanel.removeAll();  // Clear existing components
 
-        for (PasswordContainer container : vault) {
-            JPanel entryPanel = new JPanel();
-            entryPanel.setLayout(new BoxLayout(entryPanel, BoxLayout.Y_AXIS));
-            entryPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-            entryPanel.setBackground(new Color(245, 245, 245));  // Light gray background
+        if (vault.isEmpty()) {
+            // If no passwords, show the centered message
+            GridBagConstraints gbc = new GridBagConstraints();
+            gbc.gridx = 0;
+            gbc.gridy = 0;
+            gbc.weightx = 1.0;
+            gbc.weighty = 1.0;
+            JLabel noPasswordsLabel = new JLabel("No Passwords Saved", SwingConstants.CENTER);
+            noPasswordsLabel.setFont(new Font("Arial", Font.BOLD, 16));
+            noPasswordsLabel.setForeground(new Color(128, 128, 128));
+            passwordVaultPanel.add(noPasswordsLabel, gbc);
+        } else {
+            // Reduce horizontal gap from 10 to 5 pixels
+            // You can also increase number of columns if desired (currently 3)
+            passwordVaultPanel.setLayout(new GridLayout(0, 3, 5, 10));  // 3 columns, 5px horizontal gap, 10px vertical gap
 
-            // Scale the image
-            BufferedImage originalImage = container.getStoredImage();
-            if (originalImage != null) {
-                Image scaledImage = originalImage.getScaledInstance(100, 100, Image.SCALE_SMOOTH);
-                ImageIcon scaledIcon = new ImageIcon(scaledImage);
-                JLabel imageLabel = new JLabel(scaledIcon);
-                imageLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-                entryPanel.add(imageLabel);
+            for (PasswordContainer container : vault) {
+                JPanel entryPanel = new JPanel();
+                entryPanel.setLayout(new BoxLayout(entryPanel, BoxLayout.Y_AXIS));
+                // Reduce the border padding if needed
+                entryPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));  // Reduced from 10 to 5
+
+                // Scale the image
+                BufferedImage originalImage = container.getStoredImage();
+                if (originalImage != null) {
+                    Image scaledImage = originalImage.getScaledInstance(100, 100, Image.SCALE_SMOOTH);
+                    ImageIcon scaledIcon = new ImageIcon(scaledImage);
+                    JLabel imageLabel = new JLabel(scaledIcon);
+                    imageLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+                    entryPanel.add(imageLabel);
+                }
+
+                // Add display name
+                JLabel displayNameLabel = new JLabel(container.getdisplayName());
+                displayNameLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+                displayNameLabel.setBorder(BorderFactory.createEmptyBorder(5, 0, 0, 0));
+                entryPanel.add(displayNameLabel);
+
+                passwordVaultPanel.add(entryPanel);
             }
-
-            // Add display name
-            JLabel displayNameLabel = new JLabel(container.getdisplayName());
-            displayNameLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-            displayNameLabel.setBorder(BorderFactory.createEmptyBorder(5, 0, 0, 0));
-            entryPanel.add(displayNameLabel);
-
-            passwordVaultPanel.add(entryPanel);
         }
 
         passwordVaultPanel.revalidate();
@@ -156,61 +192,66 @@ public class MainGUI extends JFrame {
         tabbedPane.repaint();
     }
 
-    private void openAddToVaultDialog() {
-        JDialog dialog = new JDialog(this, "Add to Vault", true);
-        JPanel contentPanel = new JPanel(new GridLayout(4, 2, 10, 10));
-        contentPanel.setBorder(new EmptyBorder(15, 15, 15, 15));
+private void openAddToVaultDialog() {
+    JDialog dialog = new JDialog(this, "Add to Vault", true);
+    JPanel contentPanel = new JPanel(new GridLayout(4, 2, 10, 10));
+    contentPanel.setBorder(new EmptyBorder(15, 15, 15, 15));
 
-        contentPanel.add(new JLabel("Application Name:"));
-        PlaceholderTextField appNameField = new PlaceholderTextField("e.g. McMaster");
-        contentPanel.add(appNameField);
+    contentPanel.add(new JLabel("Application Name:"));
+    PlaceholderTextField appNameField = new PlaceholderTextField("e.g. McMaster");
+    contentPanel.add(appNameField);
 
-        contentPanel.add(new JLabel("Username:"));
-        PlaceholderTextField usernameField = new PlaceholderTextField("e.g. Nejat");
-        contentPanel.add(usernameField);
+    contentPanel.add(new JLabel("Username:"));
+    PlaceholderTextField usernameField = new PlaceholderTextField("e.g. Nejat");
+    contentPanel.add(usernameField);
 
-        contentPanel.add(new JLabel("URL:"));
-        PlaceholderTextField urlField = new PlaceholderTextField("e.g. mcmaster.ca");
-        contentPanel.add(urlField);
+    contentPanel.add(new JLabel("URL:"));
+    PlaceholderTextField urlField = new PlaceholderTextField("e.g. mcmaster.ca");
+    contentPanel.add(urlField);
 
-
-        // Add button
-        JButton addButton = new JButton("Add");
-        addButton.addActionListener(e -> {
+    JButton addButton = new JButton("Add");
+    addButton.addActionListener(new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
             String displayName = appNameField.getText();
             String username = usernameField.getText();
             String url = urlField.getText();
             String password = passwordField.getText();
-            
+
             // Get the image from the imageLabel
             Icon icon = imageLabel.getIcon();
             BufferedImage image = null;
             if (icon instanceof ImageIcon) {
                 Image img = ((ImageIcon) icon).getImage();
-                image = new BufferedImage(img.getWidth(null), img.getHeight(null), BufferedImage.TYPE_INT_ARGB);
+                image = new BufferedImage(
+                    img.getWidth(null),
+                    img.getHeight(null),
+                    BufferedImage.TYPE_INT_ARGB);
                 Graphics2D g = image.createGraphics();
                 g.drawImage(img, 0, 0, null);
                 g.dispose();
             }
 
+            // Create and add the new password container
             PasswordContainer newPassword = new PasswordContainer(displayName, password, url, "", image);
             vault.add(newPassword);
-            refreshVaultPanel();  // Refresh the vault display
+
+            // Close the dialog first
             dialog.dispose();
-        });
+            
+            // Then refresh the vault panel
+            refreshVaultPanel();
+        }
+    });
 
-        contentPanel.add(new JLabel());
-        contentPanel.add(addButton);
+    contentPanel.add(new JLabel());
+    contentPanel.add(addButton);
 
-
-        // Add the content panel to the dialog
-        dialog.add(contentPanel);
-
-        // Set dialog properties
-        dialog.setSize(350, 250);
-        dialog.setLocationRelativeTo(this); // Center on the main window
-        dialog.setVisible(true);
-    }
+    dialog.add(contentPanel);
+    dialog.setSize(300, 200);
+    dialog.setLocationRelativeTo(this);
+    dialog.setVisible(true);
+}
 
 class PlaceholderTextField extends JTextField implements FocusListener {
         private String placeholder;
