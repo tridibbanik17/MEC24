@@ -5,7 +5,7 @@ import java.io.Serializable;
 
 public class PasswordContainer implements Serializable  {
     private String displayName;
-    public String username;
+    private String username;
     private String password;
     private String sites;
     private String note;

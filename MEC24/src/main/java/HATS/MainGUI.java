@@ -31,19 +31,20 @@ public class MainGUI extends JFrame {
     private JButton submitButton = new JButton("Submit");
     private JTextField passwordFieldTest;
     private BufferedImage loadedTestImage;
+    private JPanel convertImagePanel;
 
 
 
     public MainGUI() {
         
-        setTitle("Password Manager");
+        setTitle("Sherlock Password Manager");
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         tabbedPane = new JTabbedPane();
 
         // Create the "Convert Image to Password" tab
-        JPanel convertImagePanel = new JPanel(new BorderLayout());
+        convertImagePanel = new JPanel(new BorderLayout());
         imageLabel = new JLabel("No Image Loaded", SwingConstants.CENTER);
         loadImageButton = new JButton("Load Image");
         passwordField = new JTextField("Converted Password");
@@ -533,6 +534,9 @@ class PlaceholderTextField extends JTextField implements FocusListener {
                         imageLabel.setIcon(new ImageIcon(image));
                         generatedPassword = PasswordGenerator.generatePasswordFromImage(image);
                         passwordField.setText(generatedPassword); // Placeholder for actual password logic
+
+                        // This gets rid of the No Image Uploaded text
+                        imageLabel.setText("");
                     } catch (IOException ex) {
                         JOptionPane.showMessageDialog(null, "Error loading image.");
                     }
@@ -573,6 +577,7 @@ class PlaceholderTextField extends JTextField implements FocusListener {
                         Image scaledImage = image.getScaledInstance(300, 300, Image.SCALE_SMOOTH); // Scale the image
 
                         // Set the scaled image to the JLabel
+                        imageLabelTest.setText("");
                         imageLabelTest.setIcon(new ImageIcon(scaledImage));
                     } catch (IOException ex) {
                         ex.printStackTrace();
