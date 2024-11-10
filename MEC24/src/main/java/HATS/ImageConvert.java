@@ -55,7 +55,7 @@ public class ImageConvert {
             PasswordManager vaultManager = new PasswordManager();
             SecretKey key = PasswordManager.generateKey();
 
-            String imagePath = "./src/main/resources/test-file.jpg"; // Path to your image file
+            String imagePath = "src/main/resources/test-file.jpg"; // Path to your image file
             File imageFile = new File(imagePath);
             BufferedImage img = ImageIO.read(imageFile);
 
@@ -64,16 +64,18 @@ public class ImageConvert {
             String displayName = "My Example App";
             BufferedImage image = img; // Assume you have an image here
             String password = "generatedPassword";
-            VaultEntry entry = new VaultEntry(application, image, displayName, password);
-            vaultManager.saveEntry(entry, key);
+            vaultManager.saveEntry(application, image, displayName, password, key);
 
-            // Retrieve a VaultEntry
+            // Retrieve and display VaultEntry data
             VaultEntry retrievedEntry = vaultManager.retrieveEntry("exampleApp", key);
             if (retrievedEntry != null) {
+                BufferedImage retrievedImage = vaultManager.bytesToImage(retrievedEntry.getStoredImage());
                 System.out.println("Retrieved entry for: " + retrievedEntry.getApplication());
+                System.out.println("Display name: " + retrievedEntry.getDisplayName());
             }
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            System.out.println("Error! " + e.getMessage());
+            e.printStackTrace();
         }
         
         /*System.out.println("Testing");

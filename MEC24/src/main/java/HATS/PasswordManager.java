@@ -3,17 +3,21 @@ package HATS;
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 
 public class PasswordManager {
-    private static final String VAULT_PATH = "/src/main/resources/vault.txt";
+    private static final String VAULT_PATH = "src/main/resources/vault.txt";
     private static final String AES_ALGORITHM = "AES";
 
-    // Encrypts and saves the VaultEntry in the vault file
-    public void saveEntry(VaultEntry entry, SecretKey key) throws Exception {
+    // Save an entry by encrypting it and writing to the vault file
+    public void saveEntry(String application, BufferedImage image, String displayName, String password, SecretKey key) throws Exception {
+        byte[] imageBytes = imageToBytes(image);
+        VaultEntry entry = new VaultEntry(application, imageBytes, displayName, password);
         String encryptedEntry = encryptObject(entry, key);
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(VAULT_PATH, true))) {
             writer.write(encryptedEntry);
@@ -21,7 +25,20 @@ public class PasswordManager {
         }
     }
 
-    // Encrypts the VaultEntry object with AES and serializes it to a string
+    // Convert BufferedImage to byte array
+    private byte[] imageToBytes(BufferedImage image) throws IOException {
+        ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+        ImageIO.write(image, "png", byteStream);
+        return byteStream.toByteArray();
+    }
+
+    // Convert byte array to BufferedImage
+    public BufferedImage bytesToImage(byte[] imageBytes) throws IOException {
+        ByteArrayInputStream byteStream = new ByteArrayInputStream(imageBytes);
+        return ImageIO.read(byteStream);
+    }
+
+    // Encrypt and serialize a VaultEntry object to a base64 string
     private String encryptObject(VaultEntry entry, SecretKey key) throws Exception {
         ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
         try (ObjectOutputStream objStream = new ObjectOutputStream(byteStream)) {
@@ -33,7 +50,7 @@ public class PasswordManager {
         return Base64.getEncoder().encodeToString(encryptedBytes);
     }
 
-    // Decrypts a line from the vault file and returns the VaultEntry object
+    // Retrieve a VaultEntry for a specific application name
     public VaultEntry retrieveEntry(String application, SecretKey key) throws Exception {
         List<VaultEntry> entries = loadEntries(key);
         for (VaultEntry entry : entries) {
@@ -41,10 +58,10 @@ public class PasswordManager {
                 return entry;
             }
         }
-        return null; // Return null if the application is not found
+        return null; // Return null if not found
     }
 
-    // Loads all entries from the vault
+    // Load all entries from the vault file
     private List<VaultEntry> loadEntries(SecretKey key) throws Exception {
         List<VaultEntry> entries = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(VAULT_PATH))) {
@@ -57,6 +74,7 @@ public class PasswordManager {
         return entries;
     }
     
+    // Decrypt a base64 string and deserialize to a VaultEntry object
     private VaultEntry decryptObject(String encryptedData, SecretKey key) throws Exception {
         byte[] decodedBytes = Base64.getDecoder().decode(encryptedData);
         Cipher cipher = Cipher.getInstance(AES_ALGORITHM);

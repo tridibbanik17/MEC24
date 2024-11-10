@@ -6,11 +6,11 @@ import java.io.Serializable;
 
 public class VaultEntry implements Serializable {
     private String application;
-    private BufferedImage storedImage;
+    private byte[] storedImage;
     private String displayName;
     private String encryptedPassword;
 
-    public VaultEntry(String application, BufferedImage storedImage, String displayName, String encryptedPassword) {
+    public VaultEntry(String application, byte[] storedImage, String displayName, String encryptedPassword) {
         this.application = application;
         this.storedImage = storedImage;
         this.displayName = displayName;
@@ -19,7 +19,7 @@ public class VaultEntry implements Serializable {
 
     // Getters
     public String getApplication() { return application; }
-    public BufferedImage getStoredImage() { return storedImage; }
+    public byte[] getStoredImage() { return storedImage; }
     public String getDisplayName() { return displayName; }
     public String getEncryptedPassword() { return encryptedPassword; }
 }
