@@ -1,4 +1,5 @@
-package main.java.HATS;
+package HATS;
+
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -12,16 +13,37 @@ import java.io.IOException;
 public class ImageUploader extends JFrame {
     private JLabel imageLabel;
     private JButton uploadButton;
+    private JTextField appNameField;
+    private JTextField urlField;
+    private JCheckBox addToVaultCheckbox;
 
     public ImageUploader() {
         setTitle("Image Uploader");
-        setSize(500, 500);
+        setSize(500, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
-        imageLabel = new JLabel("No Image Selected", SwingConstants.CENTER);
-        uploadButton = new JButton("Upload Image");
+        // Panel for inputs and upload button
+        JPanel inputPanel = new JPanel();
+        inputPanel.setLayout(new GridLayout(6, 1, 10, 10));
+        inputPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
+        // Application Name field
+        inputPanel.add(new JLabel("Application Name:"));
+        appNameField = new JTextField();
+        inputPanel.add(appNameField);
+
+        // URL field
+        inputPanel.add(new JLabel("URL:"));
+        urlField = new JTextField();
+        inputPanel.add(urlField);
+
+        // Add to Vault checkbox
+        addToVaultCheckbox = new JCheckBox("Add to vault");
+        inputPanel.add(addToVaultCheckbox);
+
+        // Upload button
+        uploadButton = new JButton("Upload Image");
         uploadButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -33,8 +55,14 @@ public class ImageUploader extends JFrame {
                 }
             }
         });
+        inputPanel.add(uploadButton);
 
-        add(uploadButton, BorderLayout.SOUTH);
+        // Image display area
+        imageLabel = new JLabel("No Image Selected", SwingConstants.CENTER);
+        imageLabel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+
+        // Add components to the main frame
+        add(inputPanel, BorderLayout.NORTH);
         add(imageLabel, BorderLayout.CENTER);
     }
 

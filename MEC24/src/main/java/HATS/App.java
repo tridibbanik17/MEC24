@@ -1,4 +1,4 @@
-package main.java.HATS;
+package HATS;
 
 import javax.swing.*;
 
