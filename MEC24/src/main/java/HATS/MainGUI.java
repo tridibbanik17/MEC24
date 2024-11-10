@@ -12,6 +12,8 @@ import java.io.File;
 import java.io.IOException;
 import javax.swing.border.EmptyBorder;
 import java.util.ArrayList;
+import java.awt.event.*;
+import java.io.*;
 
 public class MainGUI extends JFrame {
     private JLabel imageLabel;
@@ -21,6 +23,10 @@ public class MainGUI extends JFrame {
     private ArrayList<PasswordContainer> vault = new ArrayList<>();
     private JTabbedPane tabbedPane;
     private JPanel passwordVaultPanel;  // Make this a class field
+    private JButton addImageButton;
+    private JLabel imageLabelTest;  // To display the uploaded image
+    private JPanel testPanel;
+
 
     public MainGUI() {
         setTitle("Password Manager");
@@ -35,8 +41,6 @@ public class MainGUI extends JFrame {
         loadImageButton = new JButton("Load Image");
         passwordField = new JTextField("Converted Password");
         addToVaultButton = new JButton("Add to Vault");
-
-        setupListeners();
 
         JPanel southPanel = new JPanel(new BorderLayout());
         southPanel.add(passwordField, BorderLayout.CENTER);
@@ -54,10 +58,88 @@ public class MainGUI extends JFrame {
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
 
-
-        // Create the "Test" tab
+  
+        // Create and initialize the "Test" tab components
         JPanel testPanel = new JPanel();
-        testPanel.add(new JLabel("This is the test tab."));
+        testPanel.setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(10, 10, 10, 10); // Add padding
+
+        // Label for displaying image (in a fixed-size box)
+        imageLabelTest = new JLabel("No Image Loaded", SwingConstants.CENTER);
+
+        // Panel to contain the image with a fixed size
+        JPanel imagePanel = new JPanel();
+        imagePanel.setPreferredSize(new Dimension(300, 300)); // Set fixed dimensions for the image box
+        imagePanel.setMaximumSize(imagePanel.getPreferredSize());
+        imagePanel.setBorder(BorderFactory.createLineBorder(Color.BLACK)); // Optional: Add a border to the box
+        imagePanel.setLayout(new BorderLayout());
+        imagePanel.add(imageLabelTest, BorderLayout.CENTER);
+
+        // Button to upload an image
+        addImageButton = new JButton("Upload Image");
+
+        // Text field for password input (with placeholder)
+        JTextField passwordFieldTest = new JTextField("Enter your password here");
+        passwordFieldTest.setPreferredSize(new Dimension(250, 30)); // Set a fixed width
+        passwordFieldTest.setMaximumSize(passwordFieldTest.getPreferredSize());
+
+        // Set the placeholder text color to a lighter gray
+        passwordFieldTest.setForeground(Color.LIGHT_GRAY);
+
+        // FocusListener to handle clearing placeholder text when the field is clicked
+        passwordFieldTest.addFocusListener(new java.awt.event.FocusListener() {
+            @Override
+            public void focusGained(java.awt.event.FocusEvent e) {
+                if (passwordFieldTest.getText().equals("Enter your password here")) {
+                    passwordFieldTest.setText("");
+                    passwordFieldTest.setForeground(Color.BLACK); // Set text color to black when focused
+                }
+            }
+
+            @Override
+            public void focusLost(java.awt.event.FocusEvent e) {
+                if (passwordFieldTest.getText().isEmpty()) {
+                    passwordFieldTest.setText("Enter your password here");
+                    passwordFieldTest.setForeground(Color.LIGHT_GRAY); // Revert to light gray when not focused
+                }
+            }
+        });
+
+        // Add components to the "Test" tab using GridBagLayout
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridwidth = 1;
+        gbc.anchor = GridBagConstraints.CENTER;
+
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        testPanel.add(Box.createVerticalStrut(20), gbc); // Spacer
+
+        // Button
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        testPanel.add(addImageButton, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        testPanel.add(Box.createVerticalStrut(10), gbc); // Spacer
+
+        // Add the image panel below the button
+        gbc.gridx = 0;
+        gbc.gridy = 4;
+        testPanel.add(imagePanel, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 5;
+        testPanel.add(Box.createVerticalStrut(10), gbc); // Spacer
+
+        // Password field
+        gbc.gridx = 0;
+        gbc.gridy = 6;
+        testPanel.add(passwordFieldTest, gbc);
+
 
         // Add tabs to the tabbed pane
         tabbedPane.addTab("Convert Image to Password", convertImagePanel);
@@ -65,6 +147,9 @@ public class MainGUI extends JFrame {
         tabbedPane.addTab("Test", testPanel);
 
         add(tabbedPane);
+
+        // Setting up listeners
+        setupListeners();
     }
 
     // Custom WrapLayout class for better item arrangement
@@ -272,6 +357,33 @@ private void setupListeners() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 openAddToVaultDialog();
+            }
+        });
+
+        // Image button for Test tab
+        addImageButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Open file chooser to select an image
+                JFileChooser fileChooser = new JFileChooser();
+                fileChooser.setDialogTitle("Select an Image");
+
+                // Show open dialog and check if user selected a file
+                int result = fileChooser.showOpenDialog(null);
+                if (result == JFileChooser.APPROVE_OPTION) {
+                    File selectedFile = fileChooser.getSelectedFile();
+
+                    try {
+                        // Load the image and scale it to fit the panel size
+                        Image image = ImageIO.read(selectedFile);
+                        Image scaledImage = image.getScaledInstance(300, 300, Image.SCALE_SMOOTH); // Scale the image
+
+                        // Set the scaled image to the JLabel
+                        imageLabelTest.setIcon(new ImageIcon(scaledImage));
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                }
             }
         });
     }
