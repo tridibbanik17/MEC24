@@ -1,5 +1,6 @@
 package HATS;
 
+import javax.crypto.SecretKey;
 import javax.imageio.ImageIO;
 
 import java.io.*;
@@ -21,28 +22,64 @@ public class ImageConvert {
     }
 
     public static String imageToPixelString(BufferedImage img) {
-        BufferedImage resizedImage = resizeImage(img, 64, 64);
-
         StringBuilder pixelData = new StringBuilder();
-        int width = resizedImage.getWidth();
-        int height = resizedImage.getHeight();
-
-        System.out.println("width: " + width);
-        System.out.println("height: " + width);
+        int width = img.getWidth();
+        int height = img.getHeight();
 
         // Loop through each pixel to build a string based on RGB values
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                int rgb = resizedImage.getRGB(x, y);
+                int rgb = img.getRGB(x, y);
                 pixelData.append(rgb);
             }
         }
         return pixelData.toString().replaceAll("-", "");
     }
 
-    public static void main(String[] args) {
-        System.out.println("Testing ImageHasher class");
+    public static String generatePasswordFromImage(BufferedImage img) {
+        try {
+            BufferedImage resizedImg = resizeImage(img, 64, 64);
+            String pixelString = imageToPixelString(resizedImg);
+            
+            // make password containing numbers, letters, special characters
 
+            return pixelString;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static void main(String[] args) {
+        try {
+            PasswordManager vaultManager = new PasswordManager();
+            SecretKey key = PasswordManager.generateKey();
+
+            String imagePath = "./src/main/resources/test-file.jpg"; // Path to your image file
+            File imageFile = new File(imagePath);
+            BufferedImage img = ImageIO.read(imageFile);
+
+            // Example usage: Save a VaultEntry
+            String application = "exampleApp";
+            String displayName = "My Example App";
+            BufferedImage image = img; // Assume you have an image here
+            String password = "generatedPassword";
+            VaultEntry entry = new VaultEntry(application, image, displayName, password);
+            vaultManager.saveEntry(entry, key);
+
+            // Retrieve a VaultEntry
+            VaultEntry retrievedEntry = vaultManager.retrieveEntry("exampleApp", key);
+            if (retrievedEntry != null) {
+                System.out.println("Retrieved entry for: " + retrievedEntry.getApplication());
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+        
+        /*System.out.println("Testing");
+
+        String passwordFilePath = "./src/main/resources/passwords.txt";
+        
         String imagePath = "./src/main/resources/test-file.jpg"; // Path to your image file
         File imageFile = new File(imagePath);
 
@@ -59,10 +96,18 @@ public class ImageConvert {
 
             // Convert image to a pixel data string
             String pixelString = imageToPixelString(img);
-            
             System.out.println(pixelString);
+
+            byte[] shaBytes = PlainTextToHash.getSHA(pixelString);
+            String hashString = PlainTextToHash.toHexString(shaBytes);
+            
+            PlainTextToHash.saveHashToFile(hashString, passwordFilePath);
+            System.out.println("Hash saved to file: " + passwordFilePath);
+
         } catch (IOException e) {
             System.err.println("Error reading the image file: " + e.getMessage());
-        }
+        } catch (Exception e) {
+            System.err.println("Error converting the image file: " + e.getMessage());
+        }*/
     }
 }
