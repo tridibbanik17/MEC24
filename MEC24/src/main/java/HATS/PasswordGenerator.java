@@ -103,13 +103,23 @@ public class PasswordGenerator {
         return hexString.toString();
     }
 
+    public static String encryptPassword512(String password) {
+        try {
+            byte[] shaBytes = getSHA(password);
+            String encryptedPassword = toHexString(shaBytes);
+            return encryptedPassword;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     public static void storeCurrentPassword(String password) {
         try {
             byte[] shaBytes = getSHA(password);
             String encryptedPassword = toHexString(shaBytes);
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(CURRENT_PASSWORD_PATH, true))) {
                 writer.write(encryptedPassword);
-                writer.newLine();
             }
         } catch (Exception e) {
             e.printStackTrace();

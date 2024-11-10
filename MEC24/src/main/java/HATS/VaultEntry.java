@@ -9,12 +9,14 @@ public class VaultEntry implements Serializable {
     private byte[] storedImage;
     private String displayName;
     private String encryptedPassword;
+    private String note;
 
-    public VaultEntry(String application, byte[] storedImage, String displayName, String encryptedPassword) {
+    public VaultEntry(String application, byte[] storedImage, String displayName, String encryptedPassword, String note) {
         this.application = application;
         this.storedImage = storedImage;
         this.displayName = displayName;
         this.encryptedPassword = encryptedPassword;
+        this.note  = note;
     }
 
     // Getters
@@ -22,4 +24,5 @@ public class VaultEntry implements Serializable {
     public byte[] getStoredImage() { return storedImage; }
     public String getDisplayName() { return displayName; }
     public String getEncryptedPassword() { return encryptedPassword; }
+    public  String getNote() { return note; }
 }
