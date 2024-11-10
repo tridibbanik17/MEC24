@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 HATS\ImageUploader$1.class
 HATS\ImageUploader.class
 HATS\MainGUI.class
@@ -9,3 +10,13 @@ HATS\App.class
 HATS\ImageUploader$2.class
 HATS\MainGUI$2.class
 HATS\PasswordContainer.class
+=======
+<<<<<<< HEAD
+HATS\MainGUI$WrapLayout.class
+HATS\MainGUI$2.class
+HATS\MainGUI$PlaceholderTextField.class
+HATS\PlainTextToHash.class
+HATS\App.class
+=======
+>>>>>>> fb4b6b23585aab1fdcc8ec80714e391db2afc9cb
+>>>>>>> e0604a036b2fd49af9f0f8d107af5246c86bcdf4
