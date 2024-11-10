@@ -348,8 +348,16 @@ private void openAddToVaultDialog() {
             // Create and add the new password container
             PasswordContainer newPassword = new PasswordContainer(displayName, username, password, url, "", image);
             vault.add(newPassword);
-            
 
+            // store to local vault
+            try {
+                PasswordManager passwordManager = new PasswordManager();
+                //VaultEntry newVaultEntry = new VaultEntry(displayName, img_serialize, username, password, "");
+                passwordManager.saveEntry(displayName, image, username, password, "", PasswordManager.generateKey());
+            } catch (Exception e2) {
+                System.out.println("Error in saving password details locally.");
+            }
+            
             // Close the dialog first
             dialog.dispose();
             

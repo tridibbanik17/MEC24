@@ -1,7 +1,10 @@
-package HATS;
+package HATS.unused;
 
 import javax.crypto.SecretKey;
 import javax.imageio.ImageIO;
+
+import HATS.PasswordManager;
+import HATS.VaultEntry;
 
 import java.io.*;
 import java.security.MessageDigest;
@@ -64,7 +67,7 @@ public class ImageConvert {
             String displayName = "My Example App";
             BufferedImage image = img; // Assume you have an image here
             String password = "generatedPassword";
-            vaultManager.saveEntry(application, image, displayName, password, key);
+            //vaultManager.saveEntry(application, image, displayName, password, key);
 
             // Retrieve and display VaultEntry data
             VaultEntry retrievedEntry = vaultManager.retrieveEntry("exampleApp", key);
