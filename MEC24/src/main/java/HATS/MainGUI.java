@@ -8,8 +8,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
+
 import javax.swing.border.EmptyBorder;
 import java.util.ArrayList;
 import java.awt.event.MouseAdapter;
@@ -533,6 +532,11 @@ class PlaceholderTextField extends JTextField implements FocusListener {
         addImageButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                String userPassword;
+                String userEncryptedPassword;
+                String realEncryptedPassword = readFileToString("../../../resources/current_password.txt");
+                boolean correct = false;
+
                 // Open file chooser to select an image
                 JFileChooser fileChooser = new JFileChooser();
                 fileChooser.setDialogTitle("Select an Image");
@@ -543,6 +547,22 @@ class PlaceholderTextField extends JTextField implements FocusListener {
                     File selectedFile = fileChooser.getSelectedFile();
 
                     try {
+                        // THIS IS FOR SEEING IF THE IMAGE MATCHES WITH THE PASSWORD
+                        BufferedImage buffImg = ImageIO.read(selectedFile);
+                        buffImg = PasswordGenerator.resizeImage(buffImg, 512, 512);
+                        userPassword = PasswordGenerator.generatePasswordFromImage(buffImg);
+                        userEncryptedPassword = PasswordGenerator.encryptPassword512(userPassword);
+
+                        // Method call to compare passwords
+                        correct = comparePasswords(userEncryptedPassword, realEncryptedPassword);
+
+                        if (correct) {
+                            System.out.println("IT WORKS!!");
+                        } else {
+                            System.out.println("NOT THE SAME!");
+                        }
+
+                        // THIS IS FOR DISPLAYING THE IMAGE IN THE BOX
                         // Load the image and scale it to fit the panel size
                         Image image = ImageIO.read(selectedFile);
                         Image scaledImage = image.getScaledInstance(300, 300, Image.SCALE_SMOOTH); // Scale the image
@@ -555,5 +575,27 @@ class PlaceholderTextField extends JTextField implements FocusListener {
                 }
             }
         });
+    }
+
+
+    public String readFileToString(String filePath) {
+        StringBuilder content = new StringBuilder();
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                content.append(line).append("\n");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null; // Return null if an error occurs
+        }
+
+        return content.toString();
+    }
+
+
+    public boolean comparePasswords(String pass1, String pass2) {
+        return pass1.equals(pass2);
     }
 }
