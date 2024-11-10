@@ -62,7 +62,7 @@ public class PasswordManager {
     }
 
     // Load all entries from the vault file
-    private List<VaultEntry> loadEntries(SecretKey key) throws Exception {
+    public List<VaultEntry> loadEntries(SecretKey key) throws Exception {
         List<VaultEntry> entries = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(VAULT_PATH))) {
             String line;

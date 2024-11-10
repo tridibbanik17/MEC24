@@ -1,5 +1,7 @@
 package HATS;
 
+import javax.crypto.SecretKey;
+
 import javax.swing.*;
 
 public class App {
@@ -8,6 +10,7 @@ public class App {
             HATS.MainGUI gui = new HATS.MainGUI();
             gui.setVisible(true);
         });
+        
     }
 }
 
