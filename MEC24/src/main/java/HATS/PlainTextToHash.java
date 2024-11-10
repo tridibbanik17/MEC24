@@ -10,7 +10,7 @@ import java.security.NoSuchAlgorithmException;
 
 
   
-public class PlainTextToHash   
+public class PlainTextToHash 
 {  
     public static byte[] getSHA(String input) throws NoSuchAlgorithmException  
     {  
@@ -46,7 +46,7 @@ public class PlainTextToHash
     }
 
     /* Driver code */  
-    public static void main(String args[]) {
+    /*public static void main(String args[]) {
         try {
             String string1 = "myPassword";
 
@@ -71,7 +71,7 @@ public class PlainTextToHash
         } catch (IOException e) {
             System.out.println("Error writing to file: " + e.getMessage());
         }
-    }
+    }*/
 }
     
 
