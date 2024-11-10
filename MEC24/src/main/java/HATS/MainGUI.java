@@ -599,8 +599,8 @@ class PlaceholderTextField extends JTextField implements FocusListener {
                     userPassword = PasswordGenerator.generatePasswordFromImage(loadedTestImage);
                     userEncryptedPassword = PasswordGenerator.encryptPassword512(userPassword);
                     userEncryptedPassword += "\n";
-                    System.out.println("From Test: " + userEncryptedPassword);
-                    System.out.println("From file: " + realEncryptedPassword);
+                    //System.out.println("From Test: " + userEncryptedPassword);
+                    //System.out.println("From file: " + realEncryptedPassword);
                     isCorrect = comparePasswords(userEncryptedPassword, realEncryptedPassword);
                 }
                 else {
