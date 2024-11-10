@@ -62,12 +62,5 @@ public class MainGUI extends JFrame {
         // Add the tabbed pane to the frame
         add(tabbedPane);
     }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            MainGUI gui = new MainGUI();
-            gui.setVisible(true);
-        });
-    }
 }
 
