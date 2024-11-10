@@ -11,22 +11,23 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import javax.swing.border.EmptyBorder;
+import java.util.ArrayList;
 
 public class MainGUI extends JFrame {
-
     private JLabel imageLabel;
     private JButton loadImageButton;
     private JTextField passwordField;
     private JButton addToVaultButton;
+    private ArrayList<PasswordContainer> vault = new ArrayList<>();
+    private JTabbedPane tabbedPane;
+    private JPanel passwordVaultPanel;  // Make this a class field
 
     public MainGUI() {
-        // Set up the JFrame
         setTitle("Password Manager");
-        setExtendedState(JFrame.MAXIMIZED_BOTH); // This maximizes the window
+        setExtendedState(JFrame.MAXIMIZED_BOTH);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        // Create the tabbed pane
-        JTabbedPane tabbedPane = new JTabbedPane();
+        tabbedPane = new JTabbedPane();
 
         // Create the "Convert Image to Password" tab
         JPanel convertImagePanel = new JPanel(new BorderLayout());
@@ -35,10 +36,8 @@ public class MainGUI extends JFrame {
         passwordField = new JTextField("Converted Password");
         addToVaultButton = new JButton("Add to Vault");
 
-        // Set up the listener for the load image button
         setupListeners();
 
-        // Add components to the "Convert Image to Password" tab
         JPanel southPanel = new JPanel(new BorderLayout());
         southPanel.add(passwordField, BorderLayout.CENTER);
         southPanel.add(addToVaultButton, BorderLayout.SOUTH);
@@ -46,95 +45,174 @@ public class MainGUI extends JFrame {
         convertImagePanel.add(imageLabel, BorderLayout.CENTER);
         convertImagePanel.add(southPanel, BorderLayout.SOUTH);
 
-        // Create the "Password Vault" tab
-        JPanel passwordVaultPanel = new JPanel();
-        passwordVaultPanel.add(new JLabel("This is the Password Vault."));
+        // Initialize the Password Vault panel
+        passwordVaultPanel = new JPanel();
+        passwordVaultPanel.add(new JLabel("No Passwords Saved"));
+        passwordVaultPanel.setLayout(new WrapLayout(FlowLayout.LEFT, 20, 20));  // Use WrapLayout instead of GridLayout
+        JScrollPane scrollPane = new JScrollPane(passwordVaultPanel);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
+
+
+        // Create the "Test" tab
+        JPanel testPanel = new JPanel();
+        testPanel.add(new JLabel("This is the test tab."));
 
         // Add tabs to the tabbed pane
         tabbedPane.addTab("Convert Image to Password", convertImagePanel);
         tabbedPane.addTab("Password Vault", passwordVaultPanel);
+        tabbedPane.addTab("Test", testPanel);
 
-        // Add the tabbed pane to the frame
         add(tabbedPane);
     }
 
-    private void setupListeners() {
-        // Load image button listener
-        loadImageButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JFileChooser fileChooser = new JFileChooser();
-                int result = fileChooser.showOpenDialog(null);
+    // Custom WrapLayout class for better item arrangement
+    private class WrapLayout extends FlowLayout {
+        public WrapLayout(int align, int hgap, int vgap) {
+            super(align, hgap, vgap);
+        }
 
-                if (result == JFileChooser.APPROVE_OPTION) {
-                    File file = fileChooser.getSelectedFile();
-                    try {
-                        BufferedImage image = ImageIO.read(file);
-                        imageLabel.setIcon(new ImageIcon(image));
-                        passwordField.setText("GeneratedPassword123"); // Placeholder for actual password logic
-                    } catch (IOException ex) {
-                        JOptionPane.showMessageDialog(null, "Error loading image.");
+        @Override
+        public Dimension preferredLayoutSize(Container target) {
+            return layoutSize(target, true);
+        }
+
+        private Dimension layoutSize(Container target, boolean preferred) {
+            synchronized (target.getTreeLock()) {
+                int targetWidth = target.getWidth();
+                if (targetWidth == 0) {
+                    targetWidth = Integer.MAX_VALUE;
+                }
+
+                int hgap = getHgap();
+                int vgap = getVgap();
+                Insets insets = target.getInsets();
+                int horizontalInsetsAndGap = insets.left + insets.right + (hgap * 2);
+                int maxWidth = targetWidth - horizontalInsetsAndGap;
+
+                Dimension dim = new Dimension(0, 0);
+                int rowWidth = 0;
+                int rowHeight = 0;
+
+                int nmembers = target.getComponentCount();
+                for (int i = 0; i < nmembers; i++) {
+                    Component m = target.getComponent(i);
+                    if (m.isVisible()) {
+                        Dimension d = preferred ? m.getPreferredSize() : m.getMinimumSize();
+                        if (rowWidth + d.width > maxWidth) {
+                            dim.width = Math.max(dim.width, rowWidth);
+                            dim.height += rowHeight + vgap;
+                            rowWidth = d.width;
+                            rowHeight = d.height;
+                        } else {
+                            rowWidth += d.width + hgap;
+                            rowHeight = Math.max(rowHeight, d.height);
+                        }
                     }
                 }
-            }
-        });
+                dim.width = Math.max(dim.width, rowWidth);
+                dim.height += rowHeight;
 
-        // "Add to Vault" button listener
-        addToVaultButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                openAddToVaultDialog();
+                dim.width += horizontalInsetsAndGap;
+                dim.height += insets.top + insets.bottom + vgap * 2;
+
+                return dim;
             }
-        });
+        }
     }
 
+    private void refreshVaultPanel() {
+        passwordVaultPanel.removeAll();  // Clear existing components
+
+        for (PasswordContainer container : vault) {
+            JPanel entryPanel = new JPanel();
+            entryPanel.setLayout(new BoxLayout(entryPanel, BoxLayout.Y_AXIS));
+            entryPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+            entryPanel.setBackground(new Color(245, 245, 245));  // Light gray background
+
+            // Scale the image
+            BufferedImage originalImage = container.getStoredImage();
+            if (originalImage != null) {
+                Image scaledImage = originalImage.getScaledInstance(100, 100, Image.SCALE_SMOOTH);
+                ImageIcon scaledIcon = new ImageIcon(scaledImage);
+                JLabel imageLabel = new JLabel(scaledIcon);
+                imageLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+                entryPanel.add(imageLabel);
+            }
+
+            // Add display name
+            JLabel displayNameLabel = new JLabel(container.getdisplayName());
+            displayNameLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+            displayNameLabel.setBorder(BorderFactory.createEmptyBorder(5, 0, 0, 0));
+            entryPanel.add(displayNameLabel);
+
+            passwordVaultPanel.add(entryPanel);
+        }
+
+        passwordVaultPanel.revalidate();
+        passwordVaultPanel.repaint();
+        tabbedPane.revalidate();
+        tabbedPane.repaint();
+    }
 
     private void openAddToVaultDialog() {
-        // Create the dialog window
         JDialog dialog = new JDialog(this, "Add to Vault", true);
+        JPanel contentPanel = new JPanel(new GridLayout(4, 2, 10, 10));
+        contentPanel.setBorder(new EmptyBorder(15, 15, 15, 15));
 
-        // Create a panel to hold the form components, and add padding using EmptyBorder
-        JPanel contentPanel = new JPanel(new GridLayout(4, 2, 10, 10)); // 10px padding between rows and columns
-        contentPanel.setBorder(new EmptyBorder(15, 15, 15, 15)); // 15px padding around the edges
-
-        // Application Name field with placeholder
         contentPanel.add(new JLabel("Application Name:"));
         PlaceholderTextField appNameField = new PlaceholderTextField("e.g. McMaster");
         contentPanel.add(appNameField);
 
-        // Username field with placeholder
         contentPanel.add(new JLabel("Username:"));
         PlaceholderTextField usernameField = new PlaceholderTextField("e.g. Nejat");
         contentPanel.add(usernameField);
 
-        // URL field with placeholder
         contentPanel.add(new JLabel("URL:"));
         PlaceholderTextField urlField = new PlaceholderTextField("e.g. mcmaster.ca");
         contentPanel.add(urlField);
 
+
         // Add button
         JButton addButton = new JButton("Add");
-        addButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                dialog.dispose(); // Close the dialog when the "Add" button is clicked
+        addButton.addActionListener(e -> {
+            String displayName = appNameField.getText();
+            String username = usernameField.getText();
+            String url = urlField.getText();
+            String password = passwordField.getText();
+            
+            // Get the image from the imageLabel
+            Icon icon = imageLabel.getIcon();
+            BufferedImage image = null;
+            if (icon instanceof ImageIcon) {
+                Image img = ((ImageIcon) icon).getImage();
+                image = new BufferedImage(img.getWidth(null), img.getHeight(null), BufferedImage.TYPE_INT_ARGB);
+                Graphics2D g = image.createGraphics();
+                g.drawImage(img, 0, 0, null);
+                g.dispose();
             }
+
+            PasswordContainer newPassword = new PasswordContainer(displayName, password, url, "", image);
+            vault.add(newPassword);
+            refreshVaultPanel();  // Refresh the vault display
+            dialog.dispose();
         });
-        contentPanel.add(new JLabel()); // Empty label to align the button
+
+        contentPanel.add(new JLabel());
         contentPanel.add(addButton);
+
 
         // Add the content panel to the dialog
         dialog.add(contentPanel);
 
         // Set dialog properties
-        dialog.setSize(300, 200);
+        dialog.setSize(350, 250);
         dialog.setLocationRelativeTo(this); // Center on the main window
         dialog.setVisible(true);
     }
 
-
-    // Custom PlaceholderTextField class (The faded part of the input field "Enter Username" or can put examples)
-    class PlaceholderTextField extends JTextField implements FocusListener {
+class PlaceholderTextField extends JTextField implements FocusListener {
         private String placeholder;
 
         public PlaceholderTextField(String placeholder) {
@@ -168,10 +246,33 @@ public class MainGUI extends JFrame {
         }
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            MainGUI gui = new MainGUI();
-            gui.setVisible(true);
+private void setupListeners() {
+        // Load image button listener
+        loadImageButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JFileChooser fileChooser = new JFileChooser();
+                int result = fileChooser.showOpenDialog(null);
+
+                if (result == JFileChooser.APPROVE_OPTION) {
+                    File file = fileChooser.getSelectedFile();
+                    try {
+                        BufferedImage image = ImageIO.read(file);
+                        imageLabel.setIcon(new ImageIcon(image));
+                        passwordField.setText("GeneratedPassword123"); // Placeholder for actual password logic
+                    } catch (IOException ex) {
+                        JOptionPane.showMessageDialog(null, "Error loading image.");
+                    }
+                }
+            }
+        });
+
+        // "Add to Vault" button listener
+        addToVaultButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                openAddToVaultDialog();
+            }
         });
     }
 }
