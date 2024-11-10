@@ -103,6 +103,17 @@ public class PasswordGenerator {
         return hexString.toString();
     }
 
+    public static String encryptPassword512(String password) {
+        try {
+            byte[] shaBytes = getSHA(password);
+            String encryptedPassword = toHexString(shaBytes);
+            return encryptedPassword;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     public static void storeCurrentPassword(String password) {
         try {
             byte[] shaBytes = getSHA(password);

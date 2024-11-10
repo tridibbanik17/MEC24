@@ -349,6 +349,7 @@ private void openAddToVaultDialog() {
             // Create and add the new password container
             PasswordContainer newPassword = new PasswordContainer(displayName, username, password, url, "", image);
             vault.add(newPassword);
+            
 
             // Close the dialog first
             dialog.dispose();

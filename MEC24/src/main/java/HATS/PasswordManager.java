@@ -17,7 +17,7 @@ public class PasswordManager {
     // Save an entry by encrypting it and writing to the vault file
     public void saveEntry(String application, BufferedImage image, String displayName, String password, SecretKey key) throws Exception {
         byte[] imageBytes = imageToBytes(image);
-        VaultEntry entry = new VaultEntry(application, imageBytes, displayName, password);
+        VaultEntry entry = new VaultEntry(application, imageBytes, displayName, password, "");
         String encryptedEntry = encryptObject(entry, key);
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(VAULT_PATH, true))) {
             writer.write(encryptedEntry);
