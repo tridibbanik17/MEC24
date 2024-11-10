@@ -116,11 +116,9 @@ public class PasswordGenerator {
 
     public static void storeCurrentPassword(String password) {
         try {
-            byte[] shaBytes = getSHA(password);
-            String encryptedPassword = toHexString(shaBytes);
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter(CURRENT_PASSWORD_PATH, true))) {
+            String encryptedPassword = encryptPassword512(password);
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(CURRENT_PASSWORD_PATH, false))) {
                 writer.write(encryptedPassword);
-                writer.newLine();
             }
         } catch (Exception e) {
             e.printStackTrace();
