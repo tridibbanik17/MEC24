@@ -1,10 +1,14 @@
 package HATS;
 
-/**
- * Hello world!
- */
+import javax.swing.*;
+
 public class App {
     public static void main(String[] args) {
-        System.out.println("Hello World!");
+        SwingUtilities.invokeLater(() -> {
+            HATS.MainGUI gui = new HATS.MainGUI();
+            gui.setVisible(true);
+        });
     }
 }
+
+
