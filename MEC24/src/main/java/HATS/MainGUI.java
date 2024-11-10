@@ -5,9 +5,12 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import javax.swing.border.EmptyBorder;
 
 public class MainGUI extends JFrame {
 
@@ -85,31 +88,29 @@ public class MainGUI extends JFrame {
         });
     }
 
+
     private void openAddToVaultDialog() {
         // Create the dialog window
         JDialog dialog = new JDialog(this, "Add to Vault", true);
-        dialog.setLayout(new GridLayout(5, 2));
 
-        // Application Name
-        dialog.add(new JLabel("Application Name:"));
-        JTextField appNameField = new JTextField();
-        dialog.add(appNameField);
+        // Create a panel to hold the form components, and add padding using EmptyBorder
+        JPanel contentPanel = new JPanel(new GridLayout(4, 2, 10, 10)); // 10px padding between rows and columns
+        contentPanel.setBorder(new EmptyBorder(15, 15, 15, 15)); // 15px padding around the edges
 
-        // Username
-        dialog.add(new JLabel("Username:"));
-        JTextField usernameField = new JTextField();
-        dialog.add(usernameField);
+        // Application Name field with placeholder
+        contentPanel.add(new JLabel("Application Name:"));
+        PlaceholderTextField appNameField = new PlaceholderTextField("e.g. McMaster");
+        contentPanel.add(appNameField);
 
-        // URL
-        dialog.add(new JLabel("URL:"));
-        JTextField urlField = new JTextField();
-        dialog.add(urlField);
+        // Username field with placeholder
+        contentPanel.add(new JLabel("Username:"));
+        PlaceholderTextField usernameField = new PlaceholderTextField("e.g. Nejat");
+        contentPanel.add(usernameField);
 
-        // Note
-        dialog.add(new JLabel("Note:"));
-        JTextArea noteArea = new JTextArea();
-        JScrollPane scrollPane = new JScrollPane(noteArea);
-        dialog.add(scrollPane);
+        // URL field with placeholder
+        contentPanel.add(new JLabel("URL:"));
+        PlaceholderTextField urlField = new PlaceholderTextField("e.g. mcmaster.ca");
+        contentPanel.add(urlField);
 
         // Add button
         JButton addButton = new JButton("Add");
@@ -119,11 +120,58 @@ public class MainGUI extends JFrame {
                 dialog.dispose(); // Close the dialog when the "Add" button is clicked
             }
         });
-        dialog.add(addButton);
+        contentPanel.add(new JLabel()); // Empty label to align the button
+        contentPanel.add(addButton);
+
+        // Add the content panel to the dialog
+        dialog.add(contentPanel);
 
         // Set dialog properties
-        dialog.setSize(400, 300);
+        dialog.setSize(300, 200);
         dialog.setLocationRelativeTo(this); // Center on the main window
         dialog.setVisible(true);
+    }
+
+
+    // Custom PlaceholderTextField class (The faded part of the input field "Enter Username" or can put examples)
+    class PlaceholderTextField extends JTextField implements FocusListener {
+        private String placeholder;
+
+        public PlaceholderTextField(String placeholder) {
+            super();
+            this.placeholder = placeholder;
+            addFocusListener(this);
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+
+            // Draw placeholder text if the field is empty and unfocused
+            if (getText().isEmpty() && !isFocusOwner()) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setColor(Color.GRAY); // Placeholder text color
+                g2.setFont(getFont().deriveFont(Font.ITALIC)); // Placeholder font style
+                g2.drawString(placeholder, 5, getHeight() / 2 + g2.getFontMetrics().getAscent() / 2 - 2);
+                g2.dispose();
+            }
+        }
+
+        @Override
+        public void focusGained(FocusEvent e) {
+            repaint(); // Remove placeholder text when focused
+        }
+
+        @Override
+        public void focusLost(FocusEvent e) {
+            repaint(); // Show placeholder text when focus is lost
+        }
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            MainGUI gui = new MainGUI();
+            gui.setVisible(true);
+        });
     }
 }
