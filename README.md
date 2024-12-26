@@ -21,3 +21,8 @@ java -cp target/MEC24-1.0.0.jar HATS.App
 8. A success or failure popup will appear letting you know if the image or password matched
 - IMPORTANT NOTE: The test works by setting the correct password and image to the most recent one added from the vault
   - The "Test" tab is just there to showcase its functionality
+
+## I, Tridib Banik, contributed to the PasswordGenerator class of this project:
+- hashPassword() method that converts a plain-text password, hashes it using the MD5 algorithm, and returns the hash as a hexadecimal string.
+- toHexString() method that converts a byte array to a hexadecimal String.
+- encryptPassword512() method that converts the hexadecimal String to 512-bit hash using the SHA-512 algorithm that ensures fixed output size for variable inputs. The hash can’t be reversed to retrieve the original input which ensures security.
