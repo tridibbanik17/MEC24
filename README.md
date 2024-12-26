@@ -1,4 +1,3 @@
-# MEC24
 # McMaster Engineering Competition 2024, Programming Category
 ## Contributors and area of contributions:
 1. Tridib Banik: Back-end
