@@ -1,12 +1,13 @@
 # McMaster Engineering Competition 2024, Programming Category
 ## Team Name: HATS
+
 ### Contributors and area of contributions:
 1. Tridib Banik: Back-end
 2. Shamil Canbolat: Front-end
 3. Aidan Heathfield: Front-end
 4. Harrison Johns: Back-end
 
-## I, Tridib Banik, contributed to the PasswordGenerator class of this project:
+### I, Tridib Banik, contributed to the PasswordGenerator class of this project:
 - hashPassword() method that converts a plain-text password, hashes it using the MD5 algorithm, and returns the hash as a hexadecimal string.
 - toHexString() method that converts a byte array to a hexadecimal String.
 - encryptPassword512() method that converts the hexadecimal String to 512-bit hash using the SHA-512 algorithm that ensures fixed output size for variable inputs. The hash can’t be reversed to retrieve the original input which ensures security.
