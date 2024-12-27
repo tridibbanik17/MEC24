@@ -1,6 +1,6 @@
 # McMaster Engineering Competition 2024, Programming Category
 ## Team Name: HATS
-## Contributors and area of contributions:
+### Contributors and area of contributions:
 1. Tridib Banik: Back-end
 2. Shamil Canbolat: Front-end
 3. Aidan Heathfield: Front-end
