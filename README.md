@@ -14,12 +14,26 @@
 
 
 ## How to Run App
-1. In the root directory of project run this line in the command line `cd MEC24`
-2. Then in command line run these 3 commands
+1. Clone the project.
+```
+git clone https://github.com/tridibbanik17/MEC24.git
+```
+2. After cloning the project, run this line these two commands below to go to the app.  
+```
+cd MEC24
+```
+```
+cd MEC24
+```
+3. Run the following 3 commands to launch the GUI.
 
 ```
 mvn compile
+```
+```
 mvn package
+```
+```
 java -cp target/MEC24-1.0.0.jar HATS.App
 ```
 
