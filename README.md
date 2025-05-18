@@ -18,7 +18,7 @@
 ```
 git clone https://github.com/tridibbanik17/MEC24.git
 ```
-2. After cloning the project, run this line these two commands below to go to the app.  
+2. After cloning the project, navigate to the project directory using the following command (you should see a src folder to confirm you're in the correct location).
 ```
 cd MEC24
 ```
